@@ -21,7 +21,7 @@ public class Player {
 	}
 	
 	public void moveForward(){
-		Vector3 move = Vector3.Zero;
+		Vector3 move = Vector3.Zero.cpy();
 		move.x = (float) Math.sin(Math.toRadians(yaw));
 		move.z = (float) -Math.cos(Math.toRadians(yaw));
 		move.scl(speed);
@@ -29,7 +29,7 @@ public class Player {
 	}
 	
 	public void moveBackward(){
-		Vector3 move = Vector3.Zero;
+		Vector3 move = Vector3.Zero.cpy();
 		move.x = (float) -Math.sin(Math.toRadians(yaw));
 		move.z = (float) Math.cos(Math.toRadians(yaw));
 		move.scl(speed);
@@ -37,7 +37,7 @@ public class Player {
 	}
 	
 	public void moveLeft(){
-		Vector3 move = Vector3.Zero;
+		Vector3 move = Vector3.Zero.cpy();
 		move.x = (float) Math.sin(Math.toRadians(yaw - 90));
 		move.z = (float) -Math.cos(Math.toRadians(yaw - 90));
 		move.scl(speed);
@@ -45,7 +45,7 @@ public class Player {
 	}
 	
 	public void moveRight(){
-		Vector3 move = Vector3.Zero;
+		Vector3 move = Vector3.Zero.cpy();
 		move.x = (float) Math.sin(Math.toRadians(yaw + 90));
 		move.z = (float) -Math.cos(Math.toRadians(yaw + 90));
 		move.scl(speed);
