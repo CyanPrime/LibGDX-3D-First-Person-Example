@@ -57,40 +57,40 @@ public class TestScreen implements Screen{
  	
 	 	//Do all your basic OpenGL ES setup to start the screen render.
 	 	Gdx.gl20.glClearColor(0.0f, 0.3f, 0.5f, 1);
-        Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        Gdx.gl20.glEnable(GL20.GL_TEXTURE_2D);
-        Gdx.gl20.glEnable(GL20.GL_BLEND);
-        Gdx.gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        Gdx.gl20.glCullFace(GL20.GL_NONE);
-        Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+	        Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+	        Gdx.gl20.glEnable(GL20.GL_TEXTURE_2D);
+	        Gdx.gl20.glEnable(GL20.GL_BLEND);
+	        Gdx.gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+	        Gdx.gl20.glCullFace(GL20.GL_NONE);
+	        Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
         
 
-        //set the camera to the players position and rotation.
-        camera.position.set(player.getPos());
-        camera.lookAt( player.getPos().x + (float) Math.sin(Math.toRadians(player.getYaw())), 0,  player.getPos().z - (float) Math.cos(Math.toRadians(player.getYaw())));
-	 	camera.update();
-	 	
-        texture.bind();
-        shaderProgram.begin();
-	        shaderProgram.setUniformMatrix("u_projTrans", camera.combined);
-	        shaderProgram.setUniformi("u_texture", 0);
-	        mesh.render(shaderProgram, GL20.GL_TRIANGLES);
-        shaderProgram.end();
-        
-        //set decals up for visual testing.
-        decal.get(0).setPosition(0,0,0);
-        decal.get(1).setPosition(-1,0,-1);
-        decal.get(2).setPosition(-1,0,1);
-        decal.get(3).setPosition(1,0,1);
-        decal.get(4).setPosition(1,0,-1);
-        
-        for(Decal d : decal){
-        	d.lookAt(camera.position, camera.up);
-        	decalBatch.add(d);
-        }
-        
-        //draw decals.
-        decalBatch.flush();
+	        //set the camera to the players position and rotation.
+	        camera.position.set(player.getPos());
+	        camera.lookAt( player.getPos().x + (float) Math.sin(Math.toRadians(player.getYaw())), 0,  player.getPos().z - (float) Math.cos(Math.toRadians(player.getYaw())));
+		 	camera.update();
+		 	
+	        texture.bind();
+	        shaderProgram.begin();
+		        shaderProgram.setUniformMatrix("u_projTrans", camera.combined);
+		        shaderProgram.setUniformi("u_texture", 0);
+		        mesh.render(shaderProgram, GL20.GL_TRIANGLES);
+	        shaderProgram.end();
+	        
+	        //set decals up for visual testing.
+	        decal.get(0).setPosition(0,0,0);
+	        decal.get(1).setPosition(-1,0,-1);
+	        decal.get(2).setPosition(-1,0,1);
+	        decal.get(3).setPosition(1,0,1);
+	        decal.get(4).setPosition(1,0,-1);
+	        
+	        for(Decal d : decal){
+	        	d.lookAt(camera.position, camera.up);
+	        	decalBatch.add(d);
+	        }
+	        
+	        //draw decals.
+	        decalBatch.flush();
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class TestScreen implements Screen{
 		decal = new Vector<Decal>();
 		
 		float aspectRatio = (float) 800 / (float) 480;
-        camera = new PerspectiveCamera(67, 2f * aspectRatio, 2f);
+        	camera = new PerspectiveCamera(67, 2f * aspectRatio, 2f);
 		camera.near = 0.1f;
         
 		texture = new Texture("badlogic.jpg");
@@ -133,16 +133,16 @@ public class TestScreen implements Screen{
 		
 		String vertexShader = Gdx.files.internal("vert.glsl").readString();
 		String  fragmentShader = Gdx.files.internal("frag.glsl").readString();
-        shaderProgram = new ShaderProgram(vertexShader,fragmentShader);
+        	shaderProgram = new ShaderProgram(vertexShader,fragmentShader);
         
-        decalBatch = new DecalBatch(new CameraGroupStrategy(camera));
-        
-        decal.add(Decal.newDecal(1, 1, textureRegion, false));
-        for(int i = 0; i < 4; i++){
-        	decal.add(Decal.newDecal(1, 1, transTextureRegion, true));
-        }
-        
-        player = new Player();
+	        decalBatch = new DecalBatch(new CameraGroupStrategy(camera));
+	        
+	        decal.add(Decal.newDecal(1, 1, textureRegion, false));
+	        for(int i = 0; i < 4; i++){
+	        	decal.add(Decal.newDecal(1, 1, transTextureRegion, true));
+	        }
+	        
+	        player = new Player();
 	}
 
 	@Override
