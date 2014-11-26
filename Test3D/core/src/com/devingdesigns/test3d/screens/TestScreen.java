@@ -17,26 +17,41 @@ import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.devingdesigns.test3d.AndroidGameControls;
 import com.devingdesigns.test3d.Player;
 
 public class TestScreen implements Screen{
 	private PerspectiveCamera camera;
 	
 	private Mesh mesh;
-	private Texture texture;
-	private Texture transTex;
+	private Texture floorTex;
+	private Vector<Texture> enemyImgs;
 	
 	
-	private Vector<Decal> decal;
+	private Vector<Decal> decals;
 	private DecalBatch decalBatch;
-	private TextureRegion textureRegion;
-	private TextureRegion transTextureRegion;
+	private Vector<TextureRegion> enemyImgRegions;
 	
 	private ShaderProgram shaderProgram;
 	
 	private Player player;
 	
+	private Stage stage;
+	private Skin skin;
+	
+	AndroidGameControls androidGameControls;
+	
 	public void update(){
+		updateControls();
+		
+		if(!AndroidGameControls.isOnDesktop()){
+			androidGameControls.updateControls(player);
+		}
+	}
+	
+	public void updateControls(){
 		//Desktop controls - I guess they could be used with a BlueTooth keyboard on Android.
 		if(Gdx.input.isKeyPressed(Input.Keys.W)) player.moveForward();
 		if(Gdx.input.isKeyPressed(Input.Keys.S)) player.moveBackward();
@@ -67,30 +82,35 @@ public class TestScreen implements Screen{
 		
 		//set the camera to the players position and rotation.
 		camera.position.set(player.getPos());
-		camera.lookAt( player.getPos().x + (float) Math.sin(Math.toRadians(player.getYaw())), 0,  player.getPos().z - (float) Math.cos(Math.toRadians(player.getYaw())));
+		camera.lookAt( player.getPos().x + (float) Math.sin(Math.toRadians(player.getYaw())), player.getPos().y,  player.getPos().z - (float) Math.cos(Math.toRadians(player.getYaw())));
 		camera.update();
 		
-		texture.bind();
+		floorTex.bind();
 		shaderProgram.begin();
-		    shaderProgram.setUniformMatrix("u_projTrans", camera.combined);
-		    shaderProgram.setUniformi("u_texture", 0);
-		    mesh.render(shaderProgram, GL20.GL_TRIANGLES);
+			shaderProgram.setUniformMatrix("u_projTrans", camera.combined);
+			shaderProgram.setUniformi("u_texture", 0);
+			mesh.render(shaderProgram, GL20.GL_TRIANGLES);
 		shaderProgram.end();
 		
 		//set decals up for visual testing.
-		decal.get(0).setPosition(0,0,0);
-		decal.get(1).setPosition(-1,0,-1);
-		decal.get(2).setPosition(-1,0,1);
-		decal.get(3).setPosition(1,0,1);
-		decal.get(4).setPosition(1,0,-1);
+		decals.get(0).setPosition(0,-0.5f,0);
+		decals.get(1).setPosition(-1,-0.5f,-1);
+		decals.get(2).setPosition(-1,-0.5f,1);
+		decals.get(3).setPosition(1,-0.5f,1);
+		decals.get(4).setPosition(1,-0.5f,-1);
 		
-		for(Decal d : decal){
+		for(Decal d : decals){
 			d.lookAt(camera.position, camera.up);
 			decalBatch.add(d);
 		}
 		
 		//draw decals.
 		decalBatch.flush();
+		
+		stage.getViewport().update(800, 480, true);
+		
+		stage.act(delta);
+		stage.draw();
 	}
 
 	@Override
@@ -98,18 +118,25 @@ public class TestScreen implements Screen{
 
 	@Override
 	public void show() {
-		decal = new Vector<Decal>();
+		decals = new Vector<Decal>();
+		enemyImgs = new Vector<Texture>();
+		enemyImgRegions = new Vector<TextureRegion>();
 		
 		float aspectRatio = (float) 800 / (float) 480;
 		camera = new PerspectiveCamera(67, 2f * aspectRatio, 2f);
 		camera.near = 0.1f;
 
-		texture = new Texture("badlogic.jpg");
-		texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
-		textureRegion = new TextureRegion(texture);
+		floorTex = new Texture("floortex.png");
+		floorTex.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
 		
-		transTex = new Texture("transtest.png");
-		transTextureRegion = new TextureRegion(transTex);
+		
+		enemyImgs.add(new Texture("enemy1.png"));
+		enemyImgs.add(new Texture("enemy2.png"));
+		
+		
+		for(Texture t : enemyImgs){
+			enemyImgRegions.add(new TextureRegion(t));
+		}
 		
 		VertexAttribute[] vaa = new VertexAttribute[3];
 		vaa[0] =  new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE );
@@ -137,12 +164,18 @@ public class TestScreen implements Screen{
 		
 		decalBatch = new DecalBatch(new CameraGroupStrategy(camera));
 		
-		decal.add(Decal.newDecal(1, 1, textureRegion, false));
+		decals.add(Decal.newDecal(1, 1, enemyImgRegions.get(0), true));
 		for(int i = 0; i < 4; i++){
-			decal.add(Decal.newDecal(1, 1, transTextureRegion, true));
+			decals.add(Decal.newDecal(1, 1, enemyImgRegions.get(1), true));
 		}
 		
 		player = new Player();
+		
+		skin = new Skin(Gdx.files.internal("uiskin.json"));
+		stage = new Stage();
+		
+		androidGameControls = new AndroidGameControls();
+		androidGameControls.buildGameControls(stage, skin);
 	}
 
 	@Override
@@ -158,9 +191,14 @@ public class TestScreen implements Screen{
 	public void dispose() {
 		shaderProgram.dispose();
 		decalBatch.dispose();
-		decal.clear();
-		transTex.dispose();
-		texture.dispose();
+		decals.clear();
+		floorTex.dispose();
+		
+		for(Texture t : enemyImgs){
+			t.dispose();
+		}
+		
+		enemyImgs.clear();
 		mesh.dispose();
 	}
 

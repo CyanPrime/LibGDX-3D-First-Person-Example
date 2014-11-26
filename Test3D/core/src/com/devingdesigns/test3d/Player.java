@@ -9,7 +9,7 @@ public class Player {
 	private float rotSpeed = 2f;
 	
 	public Player(){
-		position = Vector3.Zero;
+		position = new Vector3(0,-0.5f, 0);
 	}
 	
 	public Vector3 getPos(){
